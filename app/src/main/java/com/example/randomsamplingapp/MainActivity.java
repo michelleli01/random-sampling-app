@@ -23,7 +23,9 @@ import java.io.File;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+
 import android.widget.Toast;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,12 +41,13 @@ public class MainActivity extends AppCompatActivity {
     TextView valenceLabel;
     TextView arousalLabel;
 
-    private static final int PERMISSION_REQUEST_CODE = 100;
+    public static Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        context = getApplicationContext();
 
         SeekBar valenceBar = findViewById(R.id.valence);
         SeekBar arousalBar = findViewById(R.id.arousal);
@@ -57,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         arousalLabel = findViewById(R.id.arousal_label);
         arousalLabel.setText("Arousal: " + arousalProgress);
 
-        valenceBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+        valenceBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 valenceLabel.setText("Valence: " + progress);
@@ -92,51 +95,30 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void save(View v){
+    public void save(View v) {
         String state = Environment.getExternalStorageState();
-        if(Environment.MEDIA_MOUNTED.equals(state)){
-            if(checkPermission()){
-                File sdcard = Environment.getExternalStorageDirectory();
-                File dir = new File(sdcard.getAbsolutePath() + "/Random Sampling Data/");
-                dir.mkdir();
-                Date date = Calendar.getInstance().getTime();
-                File file = new File(dir, date.toString() + ".txt");
-                FileOutputStream out = null;
-                String valence = valenceLabel.getText().toString();
-                String arousal = arousalLabel.getText().toString();
 
-                try{
-                    out = new FileOutputStream(file);
-                    out.write(valence.getBytes());
-                    out.write(" ".getBytes());
-                    out.write(arousal.getBytes());
-                    out.close();
-                    Toast.makeText(this, "Done " + sdcard.getAbsolutePath() + "/Random Sampling Data/", Toast.LENGTH_SHORT).show();
-                } catch(IOException e){
-                    e.printStackTrace();
-                }
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            Date date = Calendar.getInstance().getTime();
+            String valence = valenceLabel.getText().toString();
+            String arousal = arousalLabel.getText().toString();
+            FileOutputStream out = null;
+
+            try {
+                out = openFileOutput(date.toString() + ".txt", Context.MODE_PRIVATE);
+                out.write(valence.getBytes());
+                out.write(" ".getBytes());
+                out.write(arousal.getBytes());
+                out.flush();
+                out.close();
+                Toast.makeText(this, "Done " + context.getFilesDir(), Toast.LENGTH_LONG).show();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            else{
-                requestPermission();
-            }
+
+
         }
     }
 
-    private boolean checkPermission(){
-        int result = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (result == PackageManager.PERMISSION_GRANTED){
-            return true;
-        }
 
-        return false;
-    }
-
-    private void requestPermission(){
-        if(ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)){
-            Toast.makeText(MainActivity.this, "Please allow this permission to create new files", Toast.LENGTH_LONG).show();
-        }
-        else{
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
-        }
-    }
 }
