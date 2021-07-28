@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 public class NotificationService extends Service {
 
@@ -29,6 +30,7 @@ public class NotificationService extends Service {
         Log.d(TAG, "alarm: NotificationService.onStartCommand()");
         if (intent != null) {
             createNotification();
+
         } else {
             Toast.makeText(getBaseContext(), "Intent was null in NotificationService", Toast.LENGTH_LONG).show();
         }
@@ -37,7 +39,7 @@ public class NotificationService extends Service {
     }
 
     private void createNotification() {
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        Log.d(TAG, "Creating notification");
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
@@ -45,14 +47,19 @@ public class NotificationService extends Service {
                 .setSmallIcon(R.drawable.ic_baseline_notifications_24)
                 .setContentTitle("Random Sampling Survey")
                 .setContentText("Please fill our survey")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
+
+        Log.d(TAG, "Launching notification");
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(0, builder.build());
     }
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            Log.d(TAG, "Creating notification channel");
+            int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Notification Channel", importance);
             channel.setDescription("This is the notification channel");
             NotificationManager notificationManager = getSystemService(NotificationManager.class);

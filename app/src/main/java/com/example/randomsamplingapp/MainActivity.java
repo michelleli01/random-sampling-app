@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -48,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = getApplicationContext();
+
+        Intent alarmServiceIntent = new Intent(this, AlarmService.class);
+        startService(alarmServiceIntent);
 
         SeekBar valenceBar = findViewById(R.id.valence);
         SeekBar arousalBar = findViewById(R.id.arousal);

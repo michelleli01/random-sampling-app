@@ -45,7 +45,7 @@ public class AlarmService extends Service {
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) + 30);
+        calendar.set(Calendar.HOUR, calendar.get(Calendar.HOUR) + 5);
         alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
 
         Log.d(TAG, "alarm set for " + calendar.getTime().toString());
